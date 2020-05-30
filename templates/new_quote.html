@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="card">
+    <div class="card-header">
+        <div class="row align-items-center justify-content-between">
+            <div class="col">
+                <h1>{{title}}</h1>
+            </div>
+            <div class="col-1">
+                <a href="{{url_for('home')}}" class="btn btn-warning">Voltar</a>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <div class="services" id="services">
+                        <div class="card-body">
+                            <table class="table table-bordered">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th>Nome</th>
+                                        <th>Preço</th>
+                                        <th>Ação</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="service_list">
+                                    <tr>
+                                        <td><input class="form-control" type="text" placeholder="Nome do produto/serviço" id="name_value"></td>
+                                        <td><input class="form-control" type="number" placeholder="Preço" min="0" id="price_value"></td>
+                                        <td><button v-on:click="addService" class="btn btn-block btn-info">Incluir</button></td>
+                                    </tr>
+                                    {% raw %}
+                                    <tr v-for="(service, index) in service_list">
+                                        <td>{{service.name}}</td>
+                                        <td>{{service.price}}</td>
+                                        <td><button v-on:click="removeService(index)" class="btn btn-block btn-danger">Excluir</button></td>
+                                    </tr>
+                                    {% endraw %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="card-footer">
+                            <form method="POST">
+                                {{form.csrf_token()}}
+                                {{form.s_list(type="hidden", **{'v-model':'s_list'})}}
+                                {{form.cost(type="hidden", **{'v-model':'total_cost'})}}
+                                {{form.sell_price(type="hidden", **{'v-model':'sell_price'})}}
+                                <div class="row justify-content-center mb-2">
+                                    <div class="input-group">
+                                        <div class="col">
+                                            {{form.who(class_="form-control",type="text",placeholder="Responsável")}}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row justify-content-between align-items-center">
+                                    <div class="col-4">
+                                        <div class="input-group">
+                                            {{ form.pmargin(class="form-control", type="number", min="0", value="80", placeholder="Margem de lucro em %", **{'v-model':'price_margin'}) }}
+                                            <div class="input-group-append">
+                                                <div class="input-group-text" title="Margem de lucro desejada"><i
+                                                        class="material-icons">monetization_on</i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="input-group">
+                                            {{form.date(class_="form-control", type="date", value=today)}}
+                                            <div class="input-group-append">
+                                                <div class="input-group-text" title="Orçamento criado em"><i class="material-icons">event</i></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% raw %}
+                                    <div class="col-3">
+                                        <h2>Custo Total: {{ new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(total_cost) }}</h2>
+                                    </div>
+                                    <div class="col-3">
+                                        <h2>Preço de venda: {{ new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(sell_price) }}</h2>
+                                    </div>
+                                    {% endraw%}
+                                    <div class="col-2">
+                                        {{form.submit(class_="btn btn-block btn-success")}}
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script> -->
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>
+<script src="{{url_for('static', filename='new_quote_2.js')}}"></script>
+{% endblock %}

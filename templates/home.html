@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <div class="row align-items-center justify-content-between">
+                <div class="col">
+                    <h1>Últimos orçamentos</h1>
+                </div>
+                <div class="col-1"><a class="btn btn-success" href="{{url_for('new_quote')}}">Novo</a></div>
+            </div>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Id</th>
+                        <th>Data</th>
+                        <th>Itens</th>
+                        <th>Custo total</th>
+                        <th>Margem %</th>
+                        <th>Preço de venda</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in list.items %}
+                    <tr>
+                        <td>{{item.id}}</td>
+                        <td>{{item.date}}</td>
+                        <td>
+                            <a class="btn btn-primary btn-block" data-toggle="collapse" href="#svc{{item.id}}"
+                                role="button">Ver</a>
+                            <div class="collapse" id="svc{{item.id}}">
+                                <table class="table">
+                                    <tbody>
+                                        {% for service in item.service_list %}
+                                        <tr>
+                                            <td>{{service.name}}</td>
+                                            <td>R${{service.cost}},00</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </td>
+                        <td>R${{item.cost}}</td>
+                        <td>{{item.pmargin}}%</td>
+                        <td>R${{item.sell_price}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="ui pagination menu d-flex flex-wrap justify-content-start">
+                <div style="margin: 2px">
+                  <a href="{{ url_for('home', page_quotes=list.prev_num, page_sales=list2.current_num) if list.has_prev else 'javascript:;' }}" class="btn btn-primary">←</a>
+                </div>
+                
+                {% for page_num in list.iter_pages(left_edge=3, right_edge=3, left_current=2, right_current=2) %}
+                  <div style="margin: 2px">
+                    {% if page_num and list.page == page_num %}
+                    <a class="disabled item btn btn-outline-primary">
+                      {{ page_num }}
+                    </a>
+                    {% elif page_num %}
+                      <a class="active item btn btn-primary" href="{{ url_for('home', page_quotes=page_num, page_sales= list2.current_num) }}">
+                      {{ page_num }}
+                    </a>
+                    {% else %}
+                      <div class="disabled item btn btn-outline-secondary">
+                        ...
+                      </div>
+                    {% endif %}
+                  </div>
+                {% endfor %}
+                <div style="margin: 2px">
+                  <a href="{{ url_for('home', page_quotes=list.next_num, page_sales=lis2.current_num) if list.has_next else 'javascript:;' }}" class="btn btn-primary">→</a>
+                </div>
+              </div>
+        </div>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-3">
+                    <h2>Calculadora de vendas</h2>
+                </div>
+                <div class="col">
+                    <form method="POST">
+                        {{form.hidden_tag()}}
+                        <div class="row mt-4">
+                            <div class="col">
+                                <div class="form-group">{{form.name(class_="form-control",type="text",placeholder="Nome do produto")}}
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    {{form.cost(class_="form-control",type="number",min="0",placeholder="Custo total")}}
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    {{form.sell_price(class_="form-control",type="number",min="0",placeholder="Preço de venda")}}
+                                </div>
+                            </div>
+                            <div class="col">
+                                {{form.submit(class_="btn btn-block btn-success")}}
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered" id="#quote_list">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Nome</th>
+                        <th>Valor de compra:</th>
+                        <th>Valor de Venda:</th>
+                        <th>Margem de lucro</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in list2.items %}
+                    <tr>
+                        <td>{{item.name}}</td>
+                        <td>R${{item.cost}}</td>
+                        <td>R${{item.sell_price}}</td>
+                        {% set margin = ((item.sell_price/item.cost)-1)*100 %}
+                        <td>{{'%0.2f' % margin|float}}%</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="ui pagination menu d-flex flex-wrap justify-content-start">
+                <div style="margin: 2px">
+                  <a href="{{ url_for('home', page_sales=list2.prev_num, page_quotes=list.current_num) if list2.has_prev else 'javascript:;' }}" class="btn btn-primary">←</a>
+                </div>
+                
+                {% for page_num in list2.iter_pages(left_edge=3, right_edge=3, left_current=2, right_current=2) %}
+                  <div style="margin: 2px">
+                    {% if page_num and list.page == page_num %}
+                    <a class="disabled item btn btn-outline-primary">
+                      {{ page_num }}
+                    </a>
+                    {% elif page_num %}
+                      <a class="active item btn btn-primary" href="{{ url_for('home', page_sales=page_num, page_quotes= list.current_num) }}">
+                      {{ page_num }}
+                    </a>
+                    {% else %}
+                      <div class="disabled item btn btn-outline-secondary">
+                        ...
+                      </div>
+                    {% endif %}
+                  </div>
+                {% endfor %}
+                <div style="margin: 2px">
+                  <a href="{{ url_for('home', page_sales=list2.next_num, page_quotes=list.current_num) if list2.has_next else 'javascript:;' }}" class="btn btn-primary">→</a>
+                </div>
+              </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}
